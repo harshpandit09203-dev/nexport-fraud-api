@@ -6,7 +6,7 @@ import uuid
 from datetime import datetime
 from pydantic import BaseModel
 
-app = FastAPI(title="Nexport Fraud Detection API")
+app = FastAPI(title="Nexport Fraud Detection API") 
 
 app.add_middleware(
     CORSMiddleware,
