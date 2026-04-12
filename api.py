@@ -15,7 +15,7 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-DATABASE_URL = "postgresql://postgres:bRTIWDZRtrhheMkLxeywsqbFYvwEeMEs@metro.proxy.rlwy.net:23054/railway"
+DATABASE_URL = "postgresql://postgres:bRTIWDZRtrhheMkLxeywsqbFYvwEeMEs@postgres.railway.internal:5432/railway"
 
 def get_db():
     return psycopg2.connect(DATABASE_URL)
