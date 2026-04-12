@@ -15,9 +15,10 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-DATABASE_URL = os.getenv"postgresql://postgres:bRTIWDZRtrhheMkLxeywsqbFYvwEeMEs@postgres.railway.internal:5432/railway"
+DATABASE_URL = os.getenv("postgresql://postgres:bRTIWDZRtrhheMkLxeywsqbFYvwEeMEs@postgres.railway.internal:5432/railway")
 def get_db():
-    return psycopg2.connect(DATABASE_URL)
+    return psycopg2.connect(DATABASE_URL,
+                            sslmode='require')
 
 class UserData(BaseModel):
     entity_type: str
