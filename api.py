@@ -78,22 +78,45 @@ def calculate_scores(data):
 
 @app.post("/register")
 def register_user(data: UserData):
-    trust_score, beh_score, final_risk, action, risk_cat = calculate_scores(data)
-    
-    entity_id = f"USR{str(uuid.uuid4())[:8].upper()}"
-    
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("""
-        INSERT INTO users 
-        (entity_id, entity_type, country_code, kyc_verified,
-         trust_score, final_risk_score, risk_category, action, created_at)
-        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
-    """, (entity_id, data.entity_type, data.country_code,
-          data.kyc_verified, trust_score, final_risk,
-          risk_cat, action, datetime.now()))
-    conn.commit()
-    conn.close()
+    try:
+        trust_score, beh_score, final_risk, action, risk_cat = calculate_scores(data)
+        
+        entity_id = f"USR{str(uuid.uuid4())[:8].upper()}"
+
+        conn = get_db()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            INSERT INTO users 
+            (entity_id, entity_type, country_code, kyc_verified,
+             trust_score, final_risk_score, risk_category, action, created_at)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
+        """, (
+            entity_id,
+            data.entity_type,
+            data.country_code,
+            data.kyc_verified,
+            trust_score,
+            final_risk,
+            risk_cat,
+            action,
+            datetime.now()
+        ))
+
+        conn.commit()
+        conn.close()
+
+        return {
+            "entity_id": entity_id,
+            "trust_score": trust_score,
+            "behavioral_score": beh_score,
+            "final_risk_score": final_risk,
+            "risk_category": risk_cat,
+            "action": action
+        }
+
+    except Exception as e:
+        return {"error": str(e)}
 
     return {
         "entity_id": entity_id,
