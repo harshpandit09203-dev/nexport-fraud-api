@@ -1,10 +1,10 @@
-
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 import psycopg2
 import uuid
 from datetime import datetime
 from pydantic import BaseModel
+import os   
 
 app = FastAPI(title="Nexport Fraud Detection API") 
 
@@ -15,10 +15,14 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-DATABASE_URL = os.getenv("postgresql://postgres:bRTIWDZRtrhheMkLxeywsqbFYvwEeMEs@postgres.railway.internal:5432/railway")
+
+DATABASE_URL = "postgresql://postgres:bRTIWDZRtrhheMkLxeywsqbFYvwEeMEs@metro.proxy.rlwy.net:23054/railway"
+
 def get_db():
-    return psycopg2.connect(DATABASE_URL,
-                            sslmode='require')
+    return psycopg2.connect(
+        DATABASE_URL,
+        sslmode='require'   
+    )
 
 class UserData(BaseModel):
     entity_type: str
@@ -35,7 +39,6 @@ class UserData(BaseModel):
     transaction_amount: float
 
 def calculate_scores(data):
-    # Trust Score
     score = 100
     if data.kyc_verified == 0:           score -= 25
     if data.documents_verified == 0:     score -= 20
@@ -48,7 +51,6 @@ def calculate_scores(data):
     if data.years_in_business > 5:       score += 10
     trust_score = max(0, min(100, score))
 
-    # Behavioral Score
     beh = 0
     if data.failed_transactions > 15:    beh += 25
     if data.complaints_received > 8:     beh += 20
@@ -56,7 +58,6 @@ def calculate_scores(data):
     if data.multiple_accounts_flag == 1: beh += 35
     beh = min(beh, 100)
 
-    # Final Risk
     final_risk = (
         (100 - trust_score) * 0.40 +
         beh * 0.40 +
@@ -104,6 +105,7 @@ def register_user(data: UserData):
         ))
 
         conn.commit()
+        cursor.close()   # ✅ FIX 3
         conn.close()
 
         return {
@@ -118,22 +120,13 @@ def register_user(data: UserData):
     except Exception as e:
         return {"error": str(e)}
 
-    return {
-        "entity_id": entity_id,
-        "trust_score": trust_score,
-        "behavioral_score": beh_score,
-        "final_risk_score": final_risk,
-        "risk_category": risk_cat,
-        "action": action,
-        "message": f"User {action}ED!"
-    }
-
 @app.get("/users")
 def get_all_users():
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM users ORDER BY created_at DESC")
     rows = cursor.fetchall()
+    cursor.close()
     conn.close()
     return {"users": rows}
 
@@ -149,6 +142,7 @@ def get_stats():
     allowed = cursor.fetchone()[0]
     cursor.execute("SELECT COUNT(*) FROM users WHERE action='REVIEW'")
     review = cursor.fetchone()[0]
+    cursor.close()
     conn.close()
     return {
         "total": total,
