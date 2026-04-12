@@ -15,7 +15,7 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-DATABASE_URL = "TERA_DATABASE_URL_YAHAN"
+DATABASE_URL = "postgresql://postgres:bRTIWDZRtrhheMkLxeywsqbFYvwEeMEs@metro.proxy.rlwy.net:23054/railway"
 
 def get_db():
     return psycopg2.connect(DATABASE_URL)
