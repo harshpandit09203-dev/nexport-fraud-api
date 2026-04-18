@@ -16,7 +16,7 @@ app.add_middleware(
 )
 
 
-DATABASE_URL = os.getenv("postgresql://postgres:PhAaLrAsKh-03@db.htkhgsbkcnwmphpmegyb.supabase.co:5432/postgres")
+DATABASE_URL = "postgresql://postgres:PhAaLrAsKh-03@db.htkhgsbkcnwmphpmegyb.supabase.co:5432/postgres"
 def get_db():
     return psycopg2.connect(
         DATABASE_URL,
