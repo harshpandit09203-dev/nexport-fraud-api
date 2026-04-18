@@ -16,12 +16,12 @@ app.add_middleware(
 )
 
 
-DATABASE_URL = "postgresql://postgres:bRTIWDZRtrhheMkLxeywsqbFYvwEeMEs@metro.proxy.rlwy.net:23054/railway"
-
+DATABASE_URL = os.getenv"postgresql://postgres:%40Harshdev-03@db.htkhgsbkcnwmphpmegyb.supabase.co:5432/postgres"
 def get_db():
     return psycopg2.connect(
         DATABASE_URL,
-        sslmode='require'   
+        sslmode='require',
+        connect_timeout=10
     )
 
 class UserData(BaseModel):
